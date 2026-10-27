@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025 한국 반려가구 양육·의료 지출 및 웰니스 리포트 대시보드</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter & Noto Sans KR -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sb: {
+                            green: '#006241',      /* Starbucks Green */
+                            accent: '#00754A',     /* Green Accent */
+                            house: '#1E3932',      /* House Green (Dark) */
+                            uplift: '#2b5148',     /* Mid-Dark Green */
+                            mint: '#d4e9e2',       /* Light Mint */
+                            cream: '#f2f0eb',      /* Neutral Warm Canvas */
+                            ceramic: '#edebe9',    /* Ceramic Wash */
+                            gold: '#cba258',       /* Rewards Gold */
+                            goldLight: '#faf6ee',  /* Gold Lightest */
+                            textDark: 'rgba(0,0,0,0.87)',
+                            textMuted: 'rgba(0,0,0,0.58)',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'pill': '50px',
+                        'card': '12px'
+                    },
+                    boxShadow: {
+                        'sb-card': '0px 0px 0.5px 0px rgba(0,0,0,0.14), 0px 1px 1px 0px rgba(0,0,0,0.24)',
+                        'sb-float': '0 0 6px rgba(0,0,0,0.24), 0 8px 12px rgba(0,0,0,0.14)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f2f0eb;
+            color: rgba(0, 0, 0, 0.87);
+            letter-spacing: -0.01em;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        /* Micro interaction for buttons */
+        .btn-sb-active:active {
+            transform: scale(0.95);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #edebe9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00754A;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-sb-mint selection:text-sb-house">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white border-b border-sb-ceramic sticky top-0 z-50 shadow-sm transition-all duration-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 rounded-full bg-sb-house flex items-center justify-center text-white font-bold text-xl shadow-md">
+                    <i class="fa-solid fa-paw text-sb-gold"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold text-sb-house tracking-tight flex items-center gap-2">
+                        2025 반려가구 웰니스 대시보드
+                        <span class="bg-sb-goldLight text-sb-gold border border-sb-gold/30 text-xs px-2.5 py-0.5 rounded-full font-semibold">종합 분석</span>
+                    </h1>
+                    <p class="text-xs text-sb-textMuted hidden sm:block">한국 반려동물 양육·의료 지출 및 시장 웰니스 리포트 데이터</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <button onclick="scrollToSection('strategy')" class="hidden md:inline-flex items-center space-x-2 bg-transparent text-sb-accent border border-sb-accent hover:bg-sb-mint/30 text-xs font-bold py-2 px-4 rounded-pill transition btn-sb-active">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span>전략적 제언</span>
+                </button>
+                <a href="#summary-cards" class="bg-sb-accent hover:bg-sb-green text-white text-xs font-bold py-2 px-5 rounded-pill shadow transition btn-sb-active flex items-center space-x-1">
+                    <span>데이터 요약</span>
+                    <i class="fa-solid fa-arrow-down text-[10px]"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+
+        <!-- Banner / Hero Section -->
+        <section class="bg-sb-house text-white rounded-card p-6 sm:p-10 shadow-lg relative overflow-hidden flex flex-col md:flex-row items-center justify-between">
+            <div class="absolute -right-10 -bottom-10 opacity-10 text-white pointer-events-none">
+                <i class="fa-solid fa-dog text-[240px]"></i>
+            </div>
+            <div class="z-10 max-w-2xl space-y-4 text-center md:text-left">
+                <div class="inline-flex items-center space-x-2 bg-sb-uplift px-3 py-1 rounded-full text-xs text-sb-mint font-semibold border border-sb-mint/20">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>질적 전환기 진입 (2025 Report)</span>
+                </div>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
+                    양적 성장을 넘어<br/>
+                    <span class="text-sb-gold">프리미엄 웰니스 & 테크</span> 중심으로 Shift
+                </h2>
+                <p class="text-sm sm:text-base text-white/80 leading-relaxed">
+                    2025년 대한민국 반려가구는 <strong>591만 가구 (1,546만 명)</strong>에 달하며, 식비 프리미엄화와 고액 치료비 증가에 따라 일상 예방 및 AI 기반 스마트케어 수요가 급증하고 있습니다.
+                </p>
+                <div class="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
+                    <span class="bg-white/10 text-xs px-3 py-1.5 rounded-pill border border-white/20"><i class="fa-solid fa-house-user mr-1 text-sb-gold"></i> 수도권 51.7% 집중</span>
+                    <span class="bg-white/10 text-xs px-3 py-1.5 rounded-pill border border-white/20"><i class="fa-solid fa-heart-pulse mr-1 text-sb-gold"></i> 평균 치료비 102.7만~146.3만 원</span>
+                    <span class="bg-white/10 text-xs px-3 py-1.5 rounded-pill border border-white/20"><i class="fa-solid fa-clock mr-1 text-sb-gold"></i> 나홀로 시간 5시간 54분</span>
+                </div>
+            </div>
+            <div class="mt-8 md:mt-0 z-10 flex flex-col items-center bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm min-w-[260px]">
+                <div class="text-center space-y-1">
+                    <span class="text-xs text-sb-mint font-semibold uppercase tracking-wider">반려가구 총 양육률</span>
+                    <div class="text-4xl font-black text-white">26.7%</div>
+                    <span class="text-xs text-white/70">전국 591만 가구</span>
+                </div>
+                <div class="w-full my-4 border-t border-white/10"></div>
+                <div class="flex justify-between w-full text-center text-xs">
+                    <div>
+                        <p class="text-white/60">반려견</p>
+                        <p class="font-bold text-sm text-white">546만 마리 <i class="fa-solid fa-caret-down text-red-400"></i></p>
+                    </div>
+                    <div class="border-r border-white/10"></div>
+                    <div>
+                        <p class="text-white/60">반려묘</p>
+                        <p class="font-bold text-sm text-white">217만 마리 <i class="fa-solid fa-caret-up text-emerald-400"></i></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- KPI Summary Cards Grid -->
+        <section id="summary-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <!-- KPI 1 -->
+            <div class="bg-white p-5 rounded-card shadow-sb-card border-l-4 border-sb-green space-y-2 hover:shadow-md transition">
+                <div class="flex items-center justify-between text-sb-textMuted text-xs font-medium">
+                    <span>월 평균 고정 양육비</span>
+                    <i class="fa-solid fa-wallet text-sb-green text-base"></i>
+                </div>
+                <div class="flex items-baseline space-x-2">
+                    <span class="text-2xl font-bold text-sb-house">19만 4천 원</span>
+                    <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">+26.0% (vs 23년)</span>
+                </div>
+                <p class="text-xs text-sb-textMuted">식비 비중이 57.6%로 급격히 확대됨</p>
+            </div>
+
+            <!-- KPI 2 -->
+            <div class="bg-white p-5 rounded-card shadow-sb-card border-l-4 border-sb-gold space-y-2 hover:shadow-md transition">
+                <div class="flex items-center justify-between text-sb-textMuted text-xs font-medium">
+                    <span>최근 2년간 평균 치료비</span>
+                    <i class="fa-solid fa-user-doctor text-sb-gold text-base"></i>
+                </div>
+                <div class="flex items-baseline space-x-2">
+                    <span class="text-2xl font-bold text-sb-house">102.7만 원</span>
+                    <span class="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">약 2배 급증</span>
+                </div>
+                <p class="text-xs text-sb-textMuted">100만 원 이상 고액 지출 가구 26.2%</p>
+            </div>
+
+            <!-- KPI 3 -->
+            <div class="bg-white p-5 rounded-card shadow-sb-card border-l-4 border-sb-accent space-y-2 hover:shadow-md transition">
+                <div class="flex items-center justify-between text-sb-textMuted text-xs font-medium">
+                    <span>하루 나홀로 방치 시간</span>
+                    <i class="fa-solid fa-stopwatch text-sb-accent text-base"></i>
+                </div>
+                <div class="flex items-baseline space-x-2">
+                    <span class="text-2xl font-bold text-sb-house">5시간 54분</span>
+                    <span class="text-xs font-semibold text-sb-accent bg-sb-mint/40 px-2 py-0.5 rounded-full">전체 80.1%</span>
+                </div>
+                <p class="text-xs text-sb-textMuted">스마트 펫가전/IoT 확장 잠재력 고조</p>
+            </div>
+
+            <!-- KPI 4 -->
+            <div class="bg-white p-5 rounded-card shadow-sb-card border-l-4 border-sb-uplift space-y-2 hover:shadow-md transition">
+                <div class="flex items-center justify-between text-sb-textMuted text-xs font-medium">
+                    <span>수의사 비만 판정율</span>
+                    <i class="fa-solid fa-weight-scale text-sb-uplift text-base"></i>
+                </div>
+                <div class="flex items-baseline space-x-2">
+                    <span class="text-2xl font-bold text-sb-house">14.7%</span>
+                    <span class="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">집합주택 15.5%</span>
+                </div>
+                <p class="text-xs text-sb-textMuted">비만견/묘 월 양육비 1.6배(28.3만 원) 증가</p>
+            </div>
+        </section>
+
+        <!-- Section 1: Demographics & Geography -->
+        <section class="space-y-6">
+            <div class="flex items-center space-x-3 border-b border-sb-ceramic pb-3">
+                <span class="w-3 h-8 bg-sb-green rounded-full"></span>
+                <h2 class="text-xl sm:text-2xl font-bold text-sb-house">1. 인구통계 및 지역 분포·품종 분석</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Chart 1: 수도권/지역별 분포 -->
+                <div class="bg-white p-6 rounded-card shadow-sb-card flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-sb-house text-base flex items-center gap-2">
+                                <i class="fa-solid fa-map-location-dot text-sb-accent"></i>
+                                반려가구 지역별 분포
+                            </h3>
+                            <span class="text-xs text-sb-textMuted">수도권 51.7% 집중</span>
+                        </div>
+                        <div class="h-56 relative">
+                            <canvas id="regionChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-sb-ceramic text-xs text-sb-textMuted bg-sb-cream/50 p-3 rounded-lg">
+                        <strong>Insight:</strong> 서울/경기/인천 수도권에 305만 가구 밀집. 2차 거점으로는 영남권(부산/경남/경북/대구 127만) 전략이 요구됨.
+                    </div>
+                </div>
+
+                <!-- Interactive Breeds Selector & Bar Chart -->
+                <div class="bg-white p-6 rounded-card shadow-sb-card lg:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                            <h3 class="font-bold text-sb-house text-base flex items-center gap-2">
+                                <i class="fa-solid fa-shield-dog text-sb-accent"></i>
+                                선호 품종 Top 5 분포
+                            </h3>
+                            <!-- Toggle Button Group -->
+                            <div class="inline-flex p-1 bg-sb-cream rounded-pill border border-sb-ceramic self-start sm:self-auto">
+                                <button id="btnDog" onclick="updateBreedChart('dog')" class="px-4 py-1.5 text-xs font-bold rounded-pill transition bg-sb-accent text-white shadow-sm">
+                                    반려견 Top
+                                </button>
+                                <button id="btnCat" onclick="updateBreedChart('cat')" class="px-4 py-1.5 text-xs font-bold rounded-pill transition text-sb-textMuted hover:text-sb-house">
+                                    반려묘 Top
+                                </button>
+                            </div>
+                        </div>
+                        <div class="h-56 relative">
+                            <canvas id="breedChart"></canvas>
+                        </div>
+                    </div>
+                    <div id="breedInsight" class="mt-4 pt-3 border-t border-sb-ceramic text-xs text-sb-textMuted bg-sb-cream/50 p-3 rounded-lg">
+                        <!-- Dynamic Text -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adopt Channels & Cat special -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-card shadow-sb-card space-y-4">
+                    <h3 class="font-bold text-sb-house text-base flex items-center gap-2">
+                        <i class="fa-solid fa-hands-holding-child text-sb-accent"></i>
+                        반려동물 주요 입양 경로 (전체)
+                    </h3>
+                    <div class="space-y-3 pt-2">
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span>친구 / 지인</span>
+                                <span>31.5%</span>
+                            </div>
+                            <div class="w-full bg-sb-cream rounded-full h-2.5">
+                                <div class="bg-sb-green h-2.5 rounded-full" style="width: 31.5%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span>유기동물 채널 종합</span>
+                                <span>27.7%</span>
+                            </div>
+                            <div class="w-full bg-sb-cream rounded-full h-2.5">
+                                <div class="bg-sb-accent h-2.5 rounded-full" style="width: 27.7%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold mb-1">
+                                <span>애견센터 / 복합매장</span>
+                                <span>25.2%</span>
+                            </div>
+                            <div class="w-full bg-sb-cream rounded-full h-2.5">
+                                <div class="bg-sb-gold h-2.5 rounded-full" style="width: 25.2%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-sb-goldLight p-6 rounded-card shadow-sb-card border border-sb-gold/20 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-sb-house text-base flex items-center gap-2">
+                                <i class="fa-solid fa-cat text-sb-gold"></i>
+                                반려묘 특화 입양 경로 (길고양이 구조)
+                            </h3>
+                            <span class="bg-sb-gold text-white text-[10px] font-bold px-2 py-0.5 rounded-full">특이점</span>
+                        </div>
+                        <p class="text-xs text-sb-textMuted mb-4">
+                            고양이의 생태적 특성으로 인해 유기동물 종합 입양 비중이 <strong>46.6%</strong>에 달합니다.
+                        </p>
+                        <div class="grid grid-cols-2 gap-3 text-center">
+                            <div class="bg-white p-3 rounded-lg shadow-sm border border-sb-gold/20">
+                                <span class="text-2xl font-black text-sb-house">29.5%</span>
+                                <p class="text-[11px] text-sb-textMuted font-medium">길에서 직접 구조</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm border border-sb-gold/20">
+                                <span class="text-2xl font-black text-sb-house">46.6%</span>
+                                <p class="text-[11px] text-sb-textMuted font-medium">유기묘 채널 통합</p>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-sb-house/80 italic mt-3">
+                        * 구조묘 대상 초기 건강검진 및 영양 교정 스타터 패키지 개발 전략의 핵심 근거가 됩니다.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Expense & Medical Crisis -->
+        <section class="space-y-6">
+            <div class="flex items-center space-x-3 border-b border-sb-ceramic pb-3">
+                <span class="w-3 h-8 bg-sb-gold rounded-full"></span>
+                <h2 class="text-xl sm:text-2xl font-bold text-sb-house">2. 고정 양육비 및 의료비 지출 구조</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 식비 및 양육비 비중 Chart -->
+                <div class="bg-white p-6 rounded-card shadow-sb-card space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-sb-house text-base flex items-center gap-2">
+                            <i class="fa-solid fa-bowl-food text-sb-green"></i>
+                            월 양육비 중 식비 비중 변화 (2023 vs 2025)
+                        </h3>
+                        <span class="text-xs font-bold text-sb-accent bg-sb-mint/30 px-2.5 py-1 rounded-pill">+6.8%p 상승</span>
+                    </div>
+                    <div class="h-56 relative">
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-center text-xs pt-2">
+                        <div class="bg-sb-cream/60 p-2.5 rounded-lg">
+                            <span class="text-sb-textMuted">사료비 비중</span>
+                            <p class="text-base font-bold text-sb-house">35.1% <span class="text-[10px] text-emerald-600">(+3.4%p)</span></p>
+                        </div>
+                        <div class="bg-sb-cream/60 p-2.5 rounded-lg">
+                            <span class="text-sb-textMuted">간식·영양제 비중</span>
+                            <p class="text-base font-bold text-sb-house">22.5% <span class="text-[10px] text-emerald-600">(+3.4%p)</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top 5 Medical Diseases Chart -->
+                <div class="bg-white p-6 rounded-card shadow-sb-card space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-sb-house text-base flex items-center gap-2">
+                            <i class="fa-solid fa-stethoscope text-sb-gold"></i>
+                            Top 5 주요 치료비 지출 항목
+                        </h3>
+                        <span class="text-xs text-sb-textMuted">복수응답</span>
+                    </div>
+                    <div class="h-56 relative">
+                        <canvas id="medicalChart"></canvas>
+                    </div>
+                    <p class="text-xs text-sb-textMuted bg-sb-cream/50 p-2.5 rounded-lg">
+                        <strong>특이점:</strong> 정기/장비 검진이 2위(43.9%)를 차지하며, 질병 발생 후 치료에서 사전 예방형 검진으로 패러다임이 이동함.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Financial Risk & Pet Insurance Table/Cards -->
+            <div class="bg-white p-6 rounded-card shadow-sb-card space-y-4">
+                <h3 class="font-bold text-sb-house text-base flex items-center gap-2">
+                    <i class="fa-solid fa-piggy-bank text-sb-accent"></i>
+                    금융 리스크 관리 및 펫보험 인지/가입 실태
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                    <div class="border border-sb-ceramic p-4 rounded-xl space-y-2 bg-sb-cream/20">
+                        <span class="text-xs text-sb-textMuted font-medium">전용 운용자금 보유율</span>
+                        <div class="text-2xl font-black text-sb-house">26.6%</div>
+                        <p class="text-xs text-sb-textMuted">평균 보유액 239.8만 원 (월 저축액 19.2만 원으로 감소)</p>
+                    </div>
+
+                    <div class="border border-sb-ceramic p-4 rounded-xl space-y-2 bg-sb-cream/20">
+                        <span class="text-xs text-sb-textMuted font-medium">펫보험 인지율 vs 가입률</span>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-2xl font-black text-sb-house">91.7%</span>
+                            <span class="text-sm font-bold text-sb-accent">→ 가입 12.8%</span>
+                        </div>
+                        <p class="text-xs text-sb-textMuted">미가입 원인 1위: 높은 보험료 부담 (50.6%)</p>
+                    </div>
+
+                    <div class="border border-sb-ceramic p-4 rounded-xl space-y-2 bg-sb-cream/20">
+                        <span class="text-xs text-sb-textMuted font-medium">보험 활성화 최우선 요구</span>
+                        <div class="text-2xl font-black text-sb-gold">46.1%</div>
+                        <p class="text-xs text-sb-textMuted">진료비 표준수가제 도입 요구가 압도적 1위</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Alone Time & Wellness Care -->
+        <section class="space-y-6">
+            <div class="flex items-center space-x-3 border-b border-sb-ceramic pb-3">
+                <span class="w-3 h-8 bg-sb-accent rounded-full"></span>
+                <h2 class="text-xl sm:text-2xl font-bold text-sb-house">3. 부재 중 케어 및 비만·건강 웰니스</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Care measure donut/bar -->
+                <div class="bg-white p-6 rounded-card shadow-sb-card space-y-4 lg:col-span-1">
+                    <h3 class="font-bold text-sb-house text-base flex items-center gap-2">
+                        <i class="fa-solid fa-house-laptop text-sb-accent"></i>
+                        부재 중 보호자 대응 수단
+                    </h3>
+                    <div class="space-y-3 text-xs pt-1">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="font-medium">TV / 조명 켜놓기</span>
+                                <span class="font-bold">43.1%</span>
+                            </div>
+                            <div class="w-full bg-sb-cream h-2 rounded-full"><div class="bg-sb-house h-2 rounded-full" style="width: 43.1%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="font-medium">자동급식장치 이용</span>
+                                <span class="font-bold">35.1%</span>
+                            </div>
+                            <div class="w-full bg-sb-cream h-2 rounded-full"><div class="bg-sb-accent h-2 rounded-full" style="width: 35.1%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="font-medium">냉/난방 예약 설정</span>
+                                <span class="font-bold">34.9%</span>
+                            </div>
+                            <div class="w-full bg-sb-cream h-2 rounded-full"><div class="bg-sb-green h-2 rounded-full" style="width: 34.9%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="font-medium">CCTV 설치 및 모니터링</span>
+                                <span class="font-bold">34.8%</span>
+                            </div>
+                            <div class="w-full bg-sb-cream h-2 rounded-full"><div class="bg-sb-gold h-2 rounded-full" style="width: 34.8%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="font-medium">IoT 전자제품 이용</span>
+                                <span class="font-bold">13.9%</span>
+                            </div>
+                            <div class="w-full bg-sb-cream h-2 rounded-full"><div class="bg-sb-uplift h-2 rounded-full" style="width: 13.9%"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Obesity Data & Breed Top 3 -->
+                <div class="bg-white p-6 rounded-card shadow-sb-card lg:col-span-2 space-y-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-sb-house text-base flex items-center gap-2">
+                                <i class="fa-solid fa-weight-bicycling text-sb-green"></i>
+                                주거 형태 & 품종별 비만 위험도
+                            </h3>
+                            <span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-0.5 rounded-full">수의사 진단 14.7%</span>
+                        </div>
+                        <p class="text-xs text-sb-textMuted mb-4">
+                            집합주택(아파트 등) 비만율(15.5%)이 단독주택(9.4%) 대비 현저히 높으며, 특정 품종에 비만이 극심하게 집중됩니다.
+                        </p>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Dog Obesity Top 3 -->
+                            <div class="bg-sb-cream/40 p-4 rounded-xl border border-sb-ceramic space-y-2">
+                                <span class="text-xs font-bold text-sb-house flex items-center gap-1">
+                                    <i class="fa-solid fa-dog text-sb-accent"></i> 반려견 비만율 Top 3
+                                </span>
+                                <ul class="text-xs space-y-1.5 pt-1">
+                                    <li class="flex justify-between"><span>1위 요크셔테리어</span><span class="font-bold text-red-600">29.2%</span></li>
+                                    <li class="flex justify-between"><span>2위 치와와</span><span class="font-bold text-red-600">27.0%</span></li>
+                                    <li class="flex justify-between"><span>3위 포메라니안</span><span class="font-bold text-red-600">22.0%</span></li>
+                                </ul>
+                            </div>
+
+                            <!-- Cat Obesity Top 3 -->
+                            <div class="bg-sb-cream/40 p-4 rounded-xl border border-sb-ceramic space-y-2">
+                                <span class="text-xs font-bold text-sb-house flex items-center gap-1">
+                                    <i class="fa-solid fa-cat text-sb-gold"></i> 반려묘 비만율 Top 3
+                                </span>
+                                <ul class="text-xs space-y-1.5 pt-1">
+                                    <li class="flex justify-between"><span>1위 페르시안</span><span class="font-bold text-red-600">70.0%</span></li>
+                                    <li class="flex justify-between"><span>2위 샴</span><span class="font-bold text-red-600">60.0%</span></li>
+                                    <li class="flex justify-between"><span>3위 러시안블루</span><span class="font-bold text-red-600">50.0%</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 bg-sb-goldLight p-3 rounded-lg border border-sb-gold/30 flex items-center justify-between text-xs">
+                        <div>
+                            <span class="font-bold text-sb-house">비만 동물 월 양육비: 28만 3천 원</span>
+                            <p class="text-[11px] text-sb-textMuted">정상 동물(17.8만 원) 대비 1.6배(월 +10.5만 원) 추가 지출 발생</p>
+                        </div>
+                        <i class="fa-solid fa-arrow-trend-up text-sb-gold text-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Pet Loss & Social Consensus -->
+        <section class="space-y-6">
+            <div class="flex items-center space-x-3 border-b border-sb-ceramic pb-3">
+                <span class="w-3 h-8 bg-sb-uplift rounded-full"></span>
+                <h2 class="text-xl sm:text-2xl font-bold text-sb-house">4. 펫로스(Pet Loss) & 반려인-비반려인 공존 과제</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Funeral Culture Changes -->
+                <div class="bg-white p-6 rounded-card shadow-sb-card space-y-4">
+                    <h3 class="font-bold text-sb-house text-base flex items-center gap-2">
+                        <i class="fa-solid fa-ribbon text-sb-uplift"></i>
+                        장례 방식의 유의미한 변화 (2023 vs 2024)
+                    </h3>
+                    <div class="h-52 relative">
+                        <canvas id="funeralChart"></canvas>
+                    </div>
+                    <p class="text-xs text-sb-textMuted bg-sb-cream/50 p-2.5 rounded-lg">
+                        불법 야산 매장이 급감(58.7%→31.6%)하고 화장, 수목장, 메모리얼 스톤 등 인도적 추모 문화가 빠르게 안착함.
+                    </p>
+                </div>
+
+                <!-- Petiquette Gap & Policy Agreement -->
+                <div class="bg-white p-6 rounded-card shadow-sb-card space-y-4 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-sb-house text-base flex items-center gap-2">
+                            <i class="fa-solid fa-scale-balanced text-sb-accent"></i>
+                            펫티켓 준수 인식 온도차 & 제도 동의율
+                        </h3>
+                        
+                        <!-- Gap bar comparison -->
+                        <div class="mt-3 p-3 bg-sb-cream/50 rounded-xl space-y-2">
+                            <span class="text-xs font-bold text-sb-house">"스스로/주변에서 펫티켓을 잘 지킨다"</span>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex justify-between">
+                                    <span>반려가구 자기 평가</span>
+                                    <span class="font-bold text-sb-green">71.4%</span>
+                                </div>
+                                <div class="w-full bg-sb-ceramic h-2 rounded-full"><div class="bg-sb-green h-2 rounded-full" style="width: 71.4%"></div></div>
+                                <div class="flex justify-between pt-1">
+                                    <span>비반려가구 체감 평가</span>
+                                    <span class="font-bold text-red-500">19.0%</span>
+                                </div>
+                                <div class="w-full bg-sb-ceramic h-2 rounded-full"><div class="bg-red-500 h-2 rounded-full" style="width: 19.0%"></div></div>
+                            </div>
+                            <p class="text-[11px] text-red-600 text-right font-semibold pt-1">인식 격차: 52.4%p 차이</p>
+                        </div>
+
+                        <!-- Policy Consensus -->
+                        <div class="mt-4 space-y-2 text-xs">
+                            <span class="font-bold text-sb-house">동물 복지 및 법제도 강회의 사회적 동의율</span>
+                            <div class="grid grid-cols-2 gap-2 text-center pt-1">
+                                <div class="bg-sb-mint/20 border border-sb-mint p-2 rounded-lg">
+                                    <span class="text-sb-house font-bold">학대/유기 처벌 강화</span>
+                                    <p class="text-base font-black text-sb-accent">82.6%</p>
+                                </div>
+                                <div class="bg-sb-mint/20 border border-sb-mint p-2 rounded-lg">
+                                    <span class="text-sb-house font-bold">목줄/배설물 과태료</span>
+                                    <p class="text-base font-black text-sb-accent">75.0%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Strategic Recommendations (Action Roadmap) -->
+        <section id="strategy" class="bg-sb-house text-white rounded-card p-6 sm:p-8 shadow-xl space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/20 pb-4 gap-2">
+                <div class="flex items-center space-x-3">
+                    <span class="p-2.5 bg-sb-gold text-sb-house rounded-full font-bold">
+                        <i class="fa-solid fa-compass text-xl"></i>
+                    </span>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-white">5. 펫케어 산업계를 위한 4대 전략적 제언</h2>
+                        <p class="text-xs text-sb-mint">Strategic Recommendations & Action Plans</p>
+                    </div>
+                </div>
+                <span class="bg-white/10 text-xs px-3 py-1 rounded-pill text-white/80 self-start sm:self-auto border border-white/10">
+                    Executive Summary
+                </span>
+            </div>
+
+            <!-- 4 Pillar Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Pillar 1 -->
+                <div class="bg-white text-sb-textDark p-6 rounded-card space-y-3 shadow-md hover:translate-y-[-2px] transition duration-200">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-sb-green text-white text-xs font-bold px-3 py-1 rounded-pill">01. 영양 & 비만 케어</span>
+                        <i class="fa-solid fa-bowl-rice text-sb-green text-xl"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-sb-house">맞춤형 영양 교정 & 실내 피트니스</h3>
+                    <ul class="text-xs text-sb-textMuted space-y-2 list-disc list-inside">
+                        <li><strong>길고양이 구조(29.5%)</strong> 타깃 초기 검진 및 영양 교정 스타터 패키지 개발</li>
+                        <li><strong>집합주택 비만율(15.5%)</strong> 극복을 위한 실내 운동기구 및 연동 사료 라인업 확충</li>
+                        <li><strong>고위험 품종(페르시안 70%, 요크셔 29.2%)</strong> 전용 처방식 칼로리 케어 라인 강화</li>
+                    </ul>
+                </div>
+
+                <!-- Pillar 2 -->
+                <div class="bg-white text-sb-textDark p-6 rounded-card space-y-3 shadow-md hover:translate-y-[-2px] transition duration-200">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-sb-accent text-white text-xs font-bold px-3 py-1 rounded-pill">02. 스마트 펫케어</span>
+                        <i class="fa-solid fa-microchip text-sb-accent text-xl"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-sb-house">AI 기반 부재 중 통합 IoT 생태계</h3>
+                    <ul class="text-xs text-sb-textMuted space-y-2 list-disc list-inside">
+                        <li><strong>나홀로 시간(하루 5시간 54분)</strong> 불안 해소를 위한 AI 이상 행동 감지 솔루션</li>
+                        <li>자동급식(35.1%) + CCTV(34.8%) + 냉난방 연동 <strong>구독형 스마트홈 패키지</strong></li>
+                        <li>단순 모니터링을 넘어선 실시간 원격 교감 및 건강 데이터 수집 기기 고도화</li>
+                    </ul>
+                </div>
+
+                <!-- Pillar 3 -->
+                <div class="bg-white text-sb-textDark p-6 rounded-card space-y-3 shadow-md hover:translate-y-[-2px] transition duration-200">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-sb-gold text-white text-xs font-bold px-3 py-1 rounded-pill">03. 금융 & 보험 혁신</span>
+                        <i class="fa-solid fa-file-invoice-dollar text-sb-gold text-xl"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-sb-house">생애초기 맞춤 펫적금-보험 융합</h3>
+                    <ul class="text-xs text-sb-textMuted space-y-2 list-disc list-inside">
+                        <li>의료비 급증 시점인 <strong>3세 이전 가입을 유도</strong>하는 생애초기 융합 금융 상품 설계</li>
+                        <li>발생 빈도 최상위인 <strong>피부질환(46.0%) & 정기검진(43.9%)</strong> 특화 보장 모듈화</li>
+                        <li>진료비 표준수가제(46.1% 요구) 선제 대비 투명한 사전고지 연계 서비스</li>
+                    </ul>
+                </div>
+
+                <!-- Pillar 4 -->
+                <div class="bg-white text-sb-textDark p-6 rounded-card space-y-3 shadow-md hover:translate-y-[-2px] transition duration-200">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-sb-uplift text-white text-xs font-bold px-3 py-1 rounded-pill">04. 고급 추모 서비스</span>
+                        <i class="fa-solid fa-dove text-sb-uplift text-xl"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-sb-house">인도적 장례 & 펫로스 케어 플랫폼</h3>
+                    <ul class="text-xs text-sb-textMuted space-y-2 list-disc list-inside">
+                        <li>야산 매장 급감 트렌드에 대응하는 <strong>수목장 & 메모리얼스톤</strong> 고급화 패키지</li>
+                        <li><strong>펫로스증후군 1년 이상 지속 가구(16.3%)</strong> 대상 전문 심리 상담 서비스 결합</li>
+                        <li>커뮤니티 기반 애도 프로그램 제공으로 브랜드 진정성 및 고부가가치 확보</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-sb-house text-white/70 border-t border-sb-uplift mt-12 py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center text-xs">
+            <div>
+                <p class="font-bold text-white text-sm">2025 한국 반려가구 양육·의료 지출 및 웰니스 시장 리포트</p>
+                <p class="text-white/50 mt-1">Design System Inspired by Starbucks Warm Retail Canvas</p>
+            </div>
+            <div class="text-white/50">
+                <p>© 2025 Pet Care Industry Analytics. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Circular Action Button (Starbucks Frap Style) -->
+    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Top으로 이동" class="fixed bottom-6 right-6 w-14 h-14 bg-sb-accent hover:bg-sb-green text-white rounded-full shadow-sb-float flex items-center justify-center text-xl transition transform active:scale-95 z-50 border-2 border-white/20">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- Chart.js Logic Script -->
+    <script>
+        // Smooth scroll handler
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Global Chart Defaults for Starbucks Aesthetic
+        Chart.defaults.font.family = "'Noto Sans KR', sans-serif";
+        Chart.defaults.color = 'rgba(0, 0, 0, 0.58)';
+
+        // 1. Region Chart (Doughnut)
+        const ctxRegion = document.getElementById('regionChart').getContext('2d');
+        new Chart(ctxRegion, {
+            type: 'doughnut',
+            data: {
+                labels: ['수도권 (서울/경기/인천)', '부산', '경남', '경북', '대구', '기타 지역'],
+                datasets: [{
+                    data: [305, 37, 36, 28, 27, 158],
+                    backgroundColor: ['#006241', '#00754A', '#2b5148', '#cba258', '#dfc49d', '#edebe9'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ` ${context.label}: ${context.raw}만 가구`;
+                            }
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+
+        // 2. Interactive Breeds Chart (Bar)
+        const breedData = {
+            dog: {
+                labels: ['몰티즈', '푸들', '믹스견', '포메라니안', '비숑프리제'],
+                data: [20.4, 18.9, 15.1, 12.8, 7.0],
+                color: '#00754A',
+                insight: '<strong>반려견 Insight:</strong> 몰티즈(20.4%)와 푸들(18.9%) 중심의 소형견 선호 현상이 지속되고 있으며, 친구/지인(33.2%) 및 애견센터(33.2%) 입양이 주를 이룹니다.'
+            },
+            cat: {
+                labels: ['코리안숏헤어', '러시안블루', '페르시안', '스코티시폴드', '샴'],
+                data: [44.7, 12.8, 9.6, 7.9, 5.9],
+                color: '#cba258',
+                insight: '<strong>반려묘 Insight:</strong> 코리안숏헤어(44.7%)가 압도적 1위이며, 길에서 직접 구조(29.5%)하거나 유기동물 채널(46.6%)을 통한 입양 비중이 매우 높습니다.'
+            }
+        };
+
+        const ctxBreed = document.getElementById('breedChart').getContext('2d');
+        let breedChart = new Chart(ctxBreed, {
+            type: 'bar',
+            data: {
+                labels: breedData.dog.labels,
+                datasets: [{
+                    label: '점유율 (%)',
+                    data: breedData.dog.data,
+                    backgroundColor: breedData.dog.color,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, max: 50, ticks: { callback: v => v + '%' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        document.getElementById('breedInsight').innerHTML = breedData.dog.insight;
+
+        function updateBreedChart(type) {
+            const btnDog = document.getElementById('btnDog');
+            const btnCat = document.getElementById('btnCat');
+
+            if (type === 'dog') {
+                btnDog.className = 'px-4 py-1.5 text-xs font-bold rounded-pill transition bg-sb-accent text-white shadow-sm';
+                btnCat.className = 'px-4 py-1.5 text-xs font-bold rounded-pill transition text-sb-textMuted hover:text-sb-house';
+            } else {
+                btnCat.className = 'px-4 py-1.5 text-xs font-bold rounded-pill transition bg-sb-gold text-white shadow-sm';
+                btnDog.className = 'px-4 py-1.5 text-xs font-bold rounded-pill transition text-sb-textMuted hover:text-sb-house';
+            }
+
+            breedChart.data.labels = breedData[type].labels;
+            breedChart.data.datasets[0].data = breedData[type].data;
+            breedChart.data.datasets[0].backgroundColor = breedData[type].color;
+            breedChart.update();
+
+            document.getElementById('breedInsight').innerHTML = breedData[type].insight;
+        }
+
+        // 3. Expense Composition Chart (Bar)
+        const ctxExpense = document.getElementById('expenseChart').getContext('2d');
+        new Chart(ctxExpense, {
+            type: 'bar',
+            data: {
+                labels: ['2023년', '2025년'],
+                datasets: [
+                    { label: '사료비', data: [31.7, 35.1], backgroundColor: '#006241' },
+                    { label: '간식·영양제', data: [19.1, 22.5], backgroundColor: '#cba258' },
+                    { label: '기타 고정비', data: [49.2, 42.4], backgroundColor: '#edebe9' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
+                scales: {
+                    x: { stacked: true, grid: { display: false } },
+                    y: { stacked: true, max: 100, ticks: { callback: v => v + '%' } }
+                }
+            }
+        });
+
+        // 4. Medical Top 5 Chart (Horizontal Bar)
+        const ctxMedical = document.getElementById('medicalChart').getContext('2d');
+        new Chart(ctxMedical, {
+            type: 'bar',
+            indexAxis: 'y',
+            data: {
+                labels: ['피부질환 치료', '정기/장비 검진', '소화기질환 치료', '치과 치료', '안과계 치료'],
+                datasets: [{
+                    label: '지출 가구 비율 (%)',
+                    data: [46.0, 43.9, 21.7, 20.9, 13.8],
+                    backgroundColor: ['#00754A', '#cba258', '#2b5148', '#dfc49d', '#1E3932'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, max: 50, ticks: { callback: v => v + '%' } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 5. Funeral Culture Chart (Bar Comparison)
+        const ctxFuneral = document.getElementById('funeralChart').getContext('2d');
+        new Chart(ctxFuneral, {
+            type: 'bar',
+            data: {
+                labels: ['야산 매장', '화장 후 수목장', '동물병원 의뢰', '자택 유골함', '메모리얼스톤'],
+                datasets: [
+                    { label: '2023년 비율 (%)', data: [58.7, 12.0, 10.0, 9.0, 8.0], backgroundColor: '#edebe9' },
+                    { label: '2024년 비율 (%)', data: [31.6, 20.0, 15.1, 12.4, 12.4], backgroundColor: '#1E3932' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, ticks: { callback: v => v + '%' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
